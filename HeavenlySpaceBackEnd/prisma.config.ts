@@ -7,6 +7,6 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: env("DATABASE_URL"),
+    url: "mongodb+srv://Manohara:Uvi%402018@cluster0.99hzwty.mongodb.net/Estate?retryWrites=true&w=majority"
   },
 });
