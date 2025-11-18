@@ -1,10 +1,14 @@
 import express from "express";
+import cookieParser from "cookie-parser"
 
 import postRout from "./routes/post.route.js";
 import auth from "./routes/auth.route.js";
 const app =express();
+import dotenv from "dotenv"
 
 app.use(express.json());
+app.use(cookieParser());
+dotenv.config();
 
 
 app.use("/api/post",(postRout))
