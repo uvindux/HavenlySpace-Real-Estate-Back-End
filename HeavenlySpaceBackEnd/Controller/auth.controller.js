@@ -86,7 +86,7 @@ res.cookie("token",token,{
 
 
 export const logout= (req,res)=>{
-         res.clearCookie("token").status(200).json({message:"Logout successsfull"});
+         res.clearCookie("token").status(200).json({message:"You Logout successsfull"});
 }
 
 
