@@ -19,12 +19,13 @@ export const register= async(req,res)=>{
                     },
           });
 
-          res.send(newUser)
+            
+            res.status(200).json({ message: "User Created Successfully" });
 
           }
           catch(err){
                     console.log(err);
-                    res.status("Failed to create user");
+            res.status(500).json({ message: "Failed to create user" });
           }
         
 
@@ -41,7 +42,7 @@ export const login = async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { username: username },
+      where: { username },
     });
 
     if (!user) {
@@ -54,29 +55,22 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-//     // Set cookie properly
-//     res.cookie("token", "myvalue", {
-//       httpOnly: true,
-//       secure: false, // true in production with HTTPS
-//       sameSite: "strict",
-//       path: "/"
-//     });
-const token = jwt.sign({
-          id:user.id,
+    // ✅ Define age BEFORE using it
+    const age = 1000 * 60 * 60 * 24 * 7;
 
-},process.env.JWT_SECRET_KEY,{expiresIn:age})
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "7d" }
+    );
 
-const age = 1000 * 60 * 60 * 24 * 7;
-res.cookie("token",token,{
-         httpOnly :true,
-         maxAge:age,
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: age,
+      sameSite: "lax", // important for Postman & browser
+    });
 
-
-
-
-}).status(200).json({message:"Login successful"});
-
-    return res.status(200).json({ message: "Success" });
+    return res.status(200).json({ message: "Login successful" });
 
   } catch (err) {
     console.error(err);

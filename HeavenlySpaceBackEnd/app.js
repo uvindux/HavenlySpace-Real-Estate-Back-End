@@ -17,6 +17,6 @@ app.use ("/api/auth",(auth));
 app.listen(8800,()=>{
           console.log("Server is running correctly");
 });
-// app.use("/api/test",(req,res)=>{
-//           res.send("its working");
-// })
+app.use("/api/test",(req,res)=>{
+          res.send("its working");
+})
