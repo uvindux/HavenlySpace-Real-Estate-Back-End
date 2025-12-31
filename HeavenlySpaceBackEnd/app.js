@@ -2,12 +2,20 @@ import express from "express";
 import cookieParser from "cookie-parser"
 import postRout from "./routes/post.route.js";
 import auth from "./routes/auth.route.js";
-const app =express();
+import cors from "cors";
 import dotenv from "dotenv"
 
+const app = express();
 app.use(express.json());
 app.use(cookieParser());
 dotenv.config();
+app.use(
+          cors({
+                    origin: process.env.CLIENT_URL,
+                    credentials: true,
+          })
+);
+
 
 
 app.use("/api/post",(postRout))
