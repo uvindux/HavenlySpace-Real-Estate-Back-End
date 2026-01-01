@@ -1,48 +1,44 @@
-import bcrypt from "bcrypt";
+import bcrypt, { genSaltSync } from "bcrypt";
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken"
-
-
-export const register= async(req,res)=>{
-          try{
-          const {username,email,password}=req.body;
-
-          console.log(req.body);
-          const hashPassword = await bcrypt.hash(password,10);
-          console.log(hashPassword);
-
-          const newUser =await prisma.user.create({
-                    data :{
-                              username,
-                              email,
-                              password :hashPassword,
-                    },
-          });
-
-            
-            res.status(200).json({ message: "User Created Successfully" });
-
-          }
-          catch(err){
-                    console.log(err);
-            res.status(500).json({ message: "Failed to create user" });
-          }
-        
+import dotenv from "dotenv";
+dotenv.config()
 
 
 
-}
+export const register = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashPassword,
+      },
+    });
+
+    const { password: _password, ...safeUser } = newUser;
+
+    res.status(200).json({ message: "User Created Successfully", user: safeUser });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to create user" });
+  }
+};
 
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password required" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
     }
 
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { email },
     });
 
     if (!user) {
@@ -57,9 +53,12 @@ export const login = async (req, res) => {
 
     // ✅ Define age BEFORE using it
     const age = 1000 * 60 * 60 * 24 * 7;
-
+    console.log(process.env.JWT_SECRET_KEY)
     const token = jwt.sign(
-      { id: user.id },
+      {
+        id: user.id,
+        isAdmin: true
+      },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
     );
@@ -67,10 +66,11 @@ export const login = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: age,
-      sameSite: "lax", // important for Postman & browser
+      sameSite: "lax",
     });
 
-    return res.status(200).json({ message: "Login successful" });
+    const { password: _pw, ...safeUser } = user;
+    return res.status(200).json({ message: "Login successful", user: safeUser });
 
   } catch (err) {
     console.error(err);
@@ -79,9 +79,9 @@ export const login = async (req, res) => {
 };
 
 
-export const logout= (req,res)=>{
-         res.clearCookie("token").status(200).json({message:"You Logout successsfull"});
-}
+export const logout = (req, res) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "lax" }).status(200).json({ message: "You Logout successsfull" });
+};
 
 
 
