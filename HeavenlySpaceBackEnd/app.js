@@ -1,8 +1,10 @@
 import express from "express";
 import cookieParser from "cookie-parser"
+
 import postRout from "./routes/post.route.js";
 import auth from "./routes/auth.route.js";
 import test from "./routes/test.route.js";
+import userRoute from "./routes/user.route.js";
 
 import cors from "cors";
 import dotenv from "dotenv"
@@ -20,12 +22,14 @@ app.use(
 
 
 
-app.use("/api/post",(postRout))
-app.use("/api/auth", (auth));
-app.use("/api/test", (test));
+
+app.use("/api/post", postRout);
+app.use("/api/auth", auth);
+app.use("/api/test", test);
+app.use("/api/user", userRoute);
 
 
 
-app.listen(8800,()=>{
+app.listen(8800, () => {
           console.log("Server is running correctly");
 });
