@@ -25,8 +25,8 @@ export const getUser = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-          const id = req.params.id;
           const tokenUserId = req.userId;
+          const id = req.params.id || tokenUserId;
           const { password, avatar, ...inputs } = req.body;
 
           if (id !== tokenUserId) {
@@ -50,7 +50,7 @@ export const updateUser = async (req, res) => {
 
                     const { password: userPassword, ...rest } = updatedUser;
 
-                    res.status(200).json(rest);
+                    res.status(200).json({ user: rest });
           } catch (err) {
                     console.log(err);
                     res.status(500).json({ message: "Failed to update users!" });
